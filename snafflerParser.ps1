@@ -1154,37 +1154,40 @@ write-host "[*] Processing files"
 
 $files = foreach ($line in $data) {
     if($line.Typ -eq "[File]" -and $line.9 -ne $Null) {
-		$content = $line.10
+        $content = $line.10
 
-		if ($unescape) {
-			try {
-				# Attempt to unescape the content
-				$content = [System.Text.RegularExpressions.Regex]::Unescape($content)
-			} catch {
-				# Suppress the error message
-				$content = $content
-			}
-			#Format HTML
-			$content = $content -replace ([regex]::Escape("`t")),'@@a@@emsp;'
-			$content = $content -replace ([regex]::Escape("`r`n")),'@@o@@br@@c@@'
-		}
+        if ($unescape) {
+            try {
+                # Attempt to unescape the content
+                $content = [System.Text.RegularExpressions.Regex]::Unescape($content)
+            } catch {
+                # Suppress the error message
+                $content = $content
+            }
+            #Format HTML
+            $content = $content -replace ([regex]::Escape("`t")),'@@a@@emsp;'
+            $content = $content -replace ([regex]::Escape("`r`n")),'@@o@@br@@c@@'
+        }
 
-		[PsCustomObject]@{
-			check = "@@o@@input type=checkbox value=HighValue@@c@@"
-			done = "@@o@@input type=checkbox value=done@@c@@"
-			severity = $line.1
-			rule = $line.2
-			keyword = $line.6
-			modified = $line.8
-			unc = $line.9
-			extension = [System.IO.Path]::GetExtension($($line.9))
-			#Since HTML chars are encoded to entities, special strings are used and replaced later
-			open = "@@o@@a target=_blank href=file://$($(Split-Path -Parent $($line.9)).Replace(' ','%20'))\ @@c@@@@o@@span class=icon @@c@@@@a@@#x1F4C2;@@o@@/span@@c@@"
-			save = "@@o@@a target=_blank href=file://$($($line.9).Replace(' ','%20')) download@@c@@@@o@@span class=icon @@c@@@@a@@#x1F4BE;@@o@@/span@@c@@"
-			content = $content
-		}
+        Write-Host "Inspecting path: '$($line.9)'"
+
+        [PsCustomObject]@{
+            check = "@@o@@input type=checkbox value=HighValue@@c@@"
+            done = "@@o@@input type=checkbox value=done@@c@@"
+            severity = $line.1
+            rule = $line.2
+            keyword = $line.6
+            modified = $line.8
+            unc = $line.9
+            extension = [System.IO.Path]::GetExtension($($line.9))
+            #Since HTML chars are encoded to entities, special strings are used and replaced later
+            open = "@@o@@a target=_blank href=file://$($(Split-Path -Parent $($line.9)).Replace(' ','%20'))\ @@c@@@@o@@span class=icon @@c@@@@a@@#x1F4C2;@@o@@/span@@c@@"
+            save = "@@o@@a target=_blank href=file://$($($line.9).Replace(' ','%20')) download@@c@@@@o@@span class=icon @@c@@@@a@@#x1F4BE;@@o@@/span@@c@@"
+            content = $content
+        }
     }
 }
+
 
 ## Ugly hack to default to descending sort, maybe fix
 if ($sort -eq "modified") {
